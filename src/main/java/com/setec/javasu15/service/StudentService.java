@@ -6,7 +6,7 @@ import com.setec.javasu15.model.response.StudentResponse;
 import java.util.List;
 
 public interface StudentService {
-    List<StudentResponse> list();
+    List<StudentResponse> list(int page, int size, String email, String firstName, String lastName);
 
     StudentResponse get(Long id);
 

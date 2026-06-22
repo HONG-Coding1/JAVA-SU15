@@ -6,6 +6,9 @@ import com.setec.javasu15.model.response.StudentResponse;
 import com.setec.javasu15.repository.StudentRepository;
 import com.setec.javasu15.service.StudentService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -20,8 +23,28 @@ public class StudentServiceImpl implements StudentService {
     private final StudentRepository studentRepository;
 
     @Override
-    public List<StudentResponse> list() {
-        return studentRepository.findAll()
+    public List<StudentResponse> list(int page, int size, String email, String firstName, String lastName) {
+        if (page < 1 || size < 1) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Page and size must be greater than 0");
+        }
+
+        Pageable pageable = PageRequest.of(page - 1, size);
+        Page<Student> students;
+
+        if (email != null && !email.isBlank()) {
+            students = studentRepository.findByEmail(email, pageable);
+            if (students.isEmpty()) {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Student Not Found");
+            }
+        } else if (firstName != null && !firstName.isBlank()) {
+            students = studentRepository.findByFirstNameContaining(firstName, pageable);
+        } else if (lastName != null && !lastName.isBlank()) {
+            students = studentRepository.findByLastNameContaining(lastName, pageable);
+        } else {
+            students = studentRepository.findAll(pageable);
+        }
+
+        return students
                 .stream()
                 .map(Student::toResponse)
                 .toList();

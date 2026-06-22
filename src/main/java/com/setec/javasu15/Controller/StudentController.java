@@ -25,8 +25,14 @@ public class StudentController {
 
     //constructor injection
     @GetMapping
-    public ResponseEntity<List<StudentResponse>> list() {
-        return ResponseEntity.ok(studentService.list());
+    public ResponseEntity<List<StudentResponse>> list(
+        @RequestParam(defaultValue = "1") int page,
+        @RequestParam(defaultValue = "10") int size,
+        @RequestParam(required = false) String email,
+        @RequestParam(required = false) String firstName,
+        @RequestParam(required = false) String lastName
+    ) {
+        return ResponseEntity.ok(studentService.list(page, size, email, firstName,lastName));
     }
 
 
